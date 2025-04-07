@@ -12,7 +12,7 @@ import Messages from '@/Pages/Messages';
 import Settings from '@/Pages/Settings';
 import Products from '@/Pages/Products';
 import Welcome from '@/Pages/Welcome';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const ComponentsMap = {
   'Live Orders': LiveOrders,
@@ -29,6 +29,14 @@ const theme = createTheme({
 });
 
 function AppShellLayout() {
+  const [products, setProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  useEffect(() => {
+    axios.get('https://fakestoreapi.com/products')
+      .then(res => setProducts(res.data))
+      .catch(err => console.error(err));
+  }, []);
+
   const [activePage, setActivePage] = useState('Live Orders');
   const ActiveComponent = ComponentsMap[activePage];
     const [opened, { toggle }] = useDisclosure();
@@ -43,11 +51,22 @@ function AppShellLayout() {
     }}
     padding="md"
   >
-    <Header toggle={toggle} opened={opened}/>
+    <Header {...(activePage === 'Products' && { onSearch: (value) => setSearchTerm(value) })} 
+  products={products} 
+  toggle={toggle} 
+  opened={opened}/>
 
     <Navbar active={activePage} setActive={setActivePage}/>
     <AppShell.Main>
-    {ActiveComponent ? <ActiveComponent /> : <div>Select a page</div>}
+    {ActiveComponent ? (
+    activePage === 'Products' ? (
+      <Products products={products} searchTerm={searchTerm} />
+    ) : (
+      <ActiveComponent />
+    )
+  ) : (
+    <div>Select a page</div>
+  )}
     </AppShell.Main>
   </AppShell>
   );
