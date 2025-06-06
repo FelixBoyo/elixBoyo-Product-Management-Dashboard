@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: your-laravel-app
+    env: docker
+    dockerfilePath: ./Dockerfile
+    ports:
+      - 9000
